@@ -1,4 +1,6 @@
 <?php
+/* Copyright (C) 2014 Salvatore Santagati <salvatore.santagati@gmail.com> 
+*/
 
 class tcx {
 
