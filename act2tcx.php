@@ -21,6 +21,7 @@ class act2tcx {
 	private $AltitudeMeters;
 	private $HeartRateBpm;
 	private	$CadenceTrack;
+	private $Device;
 
 
 
@@ -39,12 +40,8 @@ class act2tcx {
 		$this->setAvgCadence ($act);
 		$this->setTracks ($act);
 		$this->setTrackPoints ( $act );
+		$this->setDeviceName ( $act );
 	
-	}
-
-	function activities ()	{
-
-		
 	}
 
 	function hoursToSeconds ($hour) { // $hour must be a string type: "HH:mm:ss"
@@ -78,6 +75,12 @@ class act2tcx {
 				$this->Sport_t = "";
 	
 		}
+
+	}
+
+	function setDeviceName ( $act ) {
+		
+		$this->Device = $act->getName();
 
 	}
 
@@ -196,7 +199,13 @@ class act2tcx {
 		
 		$this->CadenceTrack[$track] = $value;
 	}
-	
+
+
+	function getDeviceName ( ) {
+
+		return $this->Device;
+	}
+
 	
 	function getCadenceTrack ($track) {
 
