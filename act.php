@@ -215,7 +215,7 @@ class act2tcx {
 
 
 	function getHeartRate ($track){
-		return $this->AltitudeMeters[$track];
+		return $this->HeartRateBpm[$track];
 	}
 
 	function getAltitude($track){

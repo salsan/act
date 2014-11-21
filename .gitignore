@@ -1,2 +1,4 @@
 *.swp
 *.php~
+app.yaml
+*.html~
