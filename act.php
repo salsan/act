@@ -147,14 +147,16 @@ class act2tcx {
 
 	function setTrackPoints( $act ){
 		
-	       $this->CurrentTime = new DateTime ($this->getStarttime()) ;		
-
-	       for ( $this->track = 0; $this->track < $this->getTracks (); $this->track++) {
+		$this->CurrentTime = new DateTime ($this->getStarttime()) ;
+		$this->IntervalTimeDiff = 0;		
+		
+		for ( $this->track = 0; $this->track < $this->getTracks (); $this->track++) {
 			
 		       /* TIME */
 		       $this->TimeTrack[$this->track] = $this->CurrentTime->format('Y-m-d\TH:i:s\Z');
 		       /* Fix Format of intervaltime */
-		       $this->IntervalTime =  round ( str_replace(".", ";",  $act->TrackPoints[$this->track]->IntervalTime ) );
+		       $this->IntervalTime =  round ( str_replace(",", ".",  $act->TrackPoints[$this->track]->IntervalTime ) + $this->IntervalTimeDiff );
+		       $this->IntervalTimeDiff = str_replace(",", ".", $act->TrackPoints[$this->track]->IntervalTime ) -  $this->IntervalTime + $this->IntervalTimeDiff;
 		       $this->CurrentTime->add(new DateInterval('PT' . $this->IntervalTime . 'S'));
 
 		       /* Latitude */
@@ -173,7 +175,7 @@ class act2tcx {
 		       $this->CadenceTrack[$this->track] = $act->TrackPoints[$this->track]->Cadence;
 			
 
-	       }
+		}
 	}
 
 	function setLatitude( $act, $track , $value) {
