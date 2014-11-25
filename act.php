@@ -86,13 +86,13 @@ class act2tcx {
 
 	function setId ( $act )		{
 
-		$this->Id = $act->trackmaster->TrackName . "T" . $act->trackmaster->StartTime . "Z";
+		$this->Id = $act->trackmaster->TrackName . "T" .  date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
 		
 	}
 
 	function setStarttime ( $act )	{
 
-		$this->dateTime =  $act->trackmaster->TrackName . "T" . $act->trackmaster->StartTime . "Z";
+		$this->dateTime =  $act->trackmaster->TrackName . "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
 	}
 
 
