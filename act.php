@@ -82,15 +82,7 @@ class act2tcx {
 	
 	}
 
-	function hoursToSeconds ($hour) { // $hour must be a string type: "HH:mm:ss"
-
-	//	$parse = array();
-
-    	//	if (!preg_match ('#^(?<hours>[\d]{2}):(?<mins>[\d]{2}).(?<secs>[\d]{2})$#',$hour,$parse)) {
-         	// Throw error, exception, etc
-        //		throw new RuntimeException ("Hour Format not valid");
-		//	}
-		//
+	function hoursToSeconds ($hour) { 
 	
 		$hour_fixed = strtotime(str_replace(".", ":" , $hour ));
 
