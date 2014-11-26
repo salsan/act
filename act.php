@@ -22,6 +22,7 @@ class act2tcx {
 	private $HeartRateBpm;
 	private	$CadenceTrack;
 	private $Device;
+	private $Distance;
 
 
 
@@ -41,6 +42,43 @@ class act2tcx {
 		$this->setTracks ($act);
 		$this->setTrackPoints ( $act );
 		$this->setDeviceName ( $act );
+	
+	}
+
+	function setDistance ( $lat1, $lon1, $lat2, $lon2, $speed, $interval ) {
+
+		$this->distance = 0;
+
+		if (( $lat1 != $lat2 ) && ( $lon1 != $lon2 ))
+		{
+			// Get distance from longitude and latitude
+			// Haversine formula
+
+    			$earth_radius = 6371;  
+      
+    			$dLat = deg2rad($lat2 - $lat1);  
+    			$dLon = deg2rad($lon2 - $lon1);  
+      
+    			$a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);  
+			$c = 2 * asin(sqrt($a));  
+
+			$DistHaversine = $earth_radius * $c;
+
+			// Get distance from speed and interval 
+			$DistInterval  = ( ( $speed / 60 ) / 60 ) * $interval;
+
+			// Media distance result
+			if ( $DistInterval == 0 )
+				$this->distance = $DistHaversine * 1000;
+			else 	$this->distance = ( ( $DistHaversine + $DistInterval ) / 2 ) * 1000;
+
+				
+		}
+		
+
+		
+		return $this->distance;  
+	
 	
 	}
 
@@ -148,7 +186,8 @@ class act2tcx {
 	function setTrackPoints( $act ){
 		
 		$this->CurrentTime = new DateTime ($this->getStarttime()) ;
-		$this->IntervalTimeDiff = 0;		
+		$this->IntervalTimeDiff = 0;
+		$this->Distance[0] = 0;
 		
 		for ( $this->track = 0; $this->track < $this->getTracks (); $this->track++) {
 			
@@ -167,7 +206,22 @@ class act2tcx {
 
 		       /* Altitude */
 		       $this->AltitudeMeters[$this->track] = $act->TrackPoints[$this->track]->Altitude;
+		     
+		       /* Distance */
+		       if ( $this->track > 0 )
+		       	{
+				$this->Distance[$this->track] = $this->Distance[$this->track-1] + 
+								$this->setDistance ( 
+									$this->LatitudeDegrees[$this->track],
+									$this->LongitudeDegrees[$this->track],
+									$this->LatitudeDegrees[$this->track-1],
+									$this->LongitudeDegrees[$this->track-1],
+									$act->TrackPoints[$this->track]->Speed,
+									$act->TrackPoints[$this->track]->IntervalTime
+								) ;
 
+			}
+		
 		       /* HeartRate */
 		       $this->HeartRateBpm[$this->track] = $act->TrackPoints[$this->track]->HeartRate;
 
@@ -227,7 +281,10 @@ class act2tcx {
 	function getLongitude($track){
 		return $this->LongitudeDegrees[$track];
 	}
-
+	
+	function getDistance($track){
+		return $this->Distance[$track];
+	}
 
 	
 	function getLatitude($track) {
@@ -298,6 +355,7 @@ class act2tcx {
 		return $this->Sport_t;
 	
 	}
+
 
 }
 

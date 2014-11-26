@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2014 Salvatore Santagati <salvatore.santagati@gmail.com> 
-*/
-
+ */
 class tcx {
 
 	private $tcx;
@@ -40,13 +39,11 @@ class tcx {
 			$LatitudeDegrees = $Position->addChild('LatitudeDegrees', $act->getLatitude($i) );
 			$LongitudeDegrees = $Position->addChild('LongitudeDegrees', $act->getLongitude($i) );
 			$AltitudeMeters = $Trackpoint->addChild('AltitudeMeters', $act->getAltitude($i) );
+			$DistanceMeters = $Trackpoint->addchild('DistanceMeters', $act->getDistance($i) );
 			$HeartRateBpm = $Trackpoint->addChild('HeartRateBpm');
 			$HeartRateBpm->addAttribute('xmlns:xsi:type','HeartRateInBeatsPerMinute_t');
 			$Value = $HeartRateBpm->addChild('Value', $act->getHeartRate($i) );
 			$Cadence = $Trackpoint->addChild('Cadence', $act->getCadenceTrack($i) );
-
-
-		
 		}
 
 		$Creator = $Activity->addChild ('Creator');
