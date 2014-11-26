@@ -84,14 +84,21 @@ class act2tcx {
 
 	function hoursToSeconds ($hour) { // $hour must be a string type: "HH:mm:ss"
 
-		$parse = array();
+	//	$parse = array();
 
-    		if (!preg_match ('#^(?<hours>[\d]{2}):(?<mins>[\d]{2}).(?<secs>[\d]{2})$#',$hour,$parse)) {
+    	//	if (!preg_match ('#^(?<hours>[\d]{2}):(?<mins>[\d]{2}).(?<secs>[\d]{2})$#',$hour,$parse)) {
          	// Throw error, exception, etc
-        		throw new RuntimeException ("Hour Format not valid");
-    		}
+        //		throw new RuntimeException ("Hour Format not valid");
+		//	}
+		//
+	
+		$hour_fixed = strtotime(str_replace(".", ":" , $hour ));
 
-		return $parse['hours'] * 3600 + $parse['mins'] * 60 + $parse['secs'];
+		$hours 	= date('H', $hour_fixed);
+		$mins= date('i', $hour_fixed);
+		$secs= date('s', $hour_fixed);
+
+		return $hours * 3600 + $mins * 60 + $secs;
 	}
 
 	function setActivitySport ( $act ) 	{
