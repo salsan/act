@@ -216,8 +216,8 @@ class act2tcx {
 									$this->LongitudeDegrees[$this->track],
 									$this->LatitudeDegrees[$this->track-1],
 									$this->LongitudeDegrees[$this->track-1],
-									$act->TrackPoints[$this->track]->Speed,
-									$act->TrackPoints[$this->track]->IntervalTime
+									str_replace (",",".",$act->TrackPoints[$this->track]->Speed),
+									str_replace (",",".",$act->TrackPoints[$this->track]->IntervalTime)
 								) ;
 
 			}
