@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<style type="text/css">
+
+		#footer { 
+     	      		margin-left: auto;
+			margin-right: auto;
+			width : 200px;
+		}
+		
+		</style>
+			
+        <title>ACT : Convert ACT ( GlobalSite ) to TCX ( Garmin)</title>
+    	</head>
+	<body>
+        <form method="post" action="upload.php" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="upload" />
+            <label>Upload your ACT file:</label>
+            <input type="file" name="user_file" />
+            <input type="submit" value="Convert" />
+    	</form>
+    	<div id="footer">powered by <a href="http://salsan.github.io/act/">ACT</a></div>
+    	</body>
+</html>
