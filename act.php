@@ -123,13 +123,17 @@ class act2tcx {
 
 	function setId ( $act )		{
 
-		$this->Id = $act->trackmaster->TrackName . "T" .  date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
+		$trackName = date("Y-m-d", strtotime($act->trackmaster->TrackName));
+
+		$this->Id = $trackName . "T" .  date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
 		
 	}
 
 	function setStarttime ( $act )	{
+		
+		$trackName = date("Y-m-d", strtotime($act->trackmaster->TrackName));
 
-		$this->dateTime =  $act->trackmaster->TrackName . "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
+		$this->dateTime =  $trackName . "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
 	}
 
 
