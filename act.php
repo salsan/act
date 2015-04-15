@@ -23,7 +23,9 @@ class act2tcx {
 	private	$CadenceTrack;
 	private $Device;
 	private $Distance;
-
+	private $IntervalTime;
+	private $IntervalTimeDiff;
+	private $utc_offset;
 
 
 
@@ -31,6 +33,7 @@ class act2tcx {
 			
 
 		$this->setActivitySport ( $act );
+		$this->setUTC ( $act );
 		$this->setId ( $act );
 		$this->setStarttime ( $act );
 		$this->setTotalTimeSeconds ( $act );
@@ -123,15 +126,26 @@ class act2tcx {
 
 	function setId ( $act )		{
 
-		$this->Id = date("Y-m-d", strtotime ( $act->trackmaster->TrackName ) ) 
+		$this->current_Id = date("Y-m-d", strtotime ( $act->trackmaster->TrackName ) ) 
 			. "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
-		
+	
+		$this->Id = new DateTime ($this->current_Id);
+
+		$this->Id->sub(new DateInterval('PT' . $this->getUTC() . 'S'));
+
+
 	}
 
 	function setStarttime ( $act )	{
 
-		$this->dateTime =  date("Y-m-d", strtotime( $act->trackmaster->TrackName ) ) 
+		$this->current_dateTime =  date("Y-m-d", strtotime( $act->trackmaster->TrackName ) ) 
 			. "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
+
+		$this->dateTime = new DateTime ($this->current_dateTime );
+
+		$this->dateTime->sub(new DateInterval('PT' . $this->getUTC() . 'S'));
+
+
 	}
 
 
@@ -176,28 +190,71 @@ class act2tcx {
 		$this->Tracks = count ($act->TrackPoints );
 	}
 
-	function setTimeTrack ( $act, $track , $value ){
+	function setTimeTrack ( $value , $track ){
  
 		$this->TimeTrack[$track] = $value;
 	
 	}
 
+
+	function setIntervalTime ( $timediff, $track, $interval ){
+
+		$this->IntervalTime[$track] =  round ( $interval + $timediff );
 	
+	}
+		
+	function setIntervalTimeDiff ( $timediff, $track, $interval ) {
+
+		$this->getIntervalTimeDiff[$track] = $this->getIntervalTime($track) -  $interval + $timediff;
+	}
+
+	function setUTC ( $act ){
+
+		$this->localTime =  date("Y-m-d", strtotime( $act->trackmaster->TrackName ) ) 
+			. "T" . date('H:i:s', strtotime($act->trackmaster->StartTime)) . "Z";
+
+		$this->CurrentTime = new DateTime ( $this->localTime );
+
+		$this->lat = str_replace(",", "." , $act->TrackPoints[0]->Latitude );
+		$this->lon = str_replace(",", "." , $act->TrackPoints[0]->Longitude ) ;
+		$this->timestamp = $this->CurrentTime->getTimestamp();
+	
+		/*  Google Maps Api */
+		$this->url_api = "https://maps.googleapis.com/maps/api/timezone/json?location=";
+		$this->url_timezone = $this->url_api.$this->lat.",".$this->lon."&timestamp=".$this->timestamp;
+
+		$this->obj_tz = file_get_contents($this->url_timezone);
+
+		$this->tz = json_decode($this->obj_tz);
+		
+		$this->utc_offset = $this->tz->dstOffset + $this->tz->rawOffset;
+	
+	}
 
 	function setTrackPoints( $act ){
-		
+
 		$this->CurrentTime = new DateTime ($this->getStarttime()) ;
-		$this->IntervalTimeDiff = 0;
+
 		$this->Distance[0] = 0;
 		
 		for ( $this->track = 0; $this->track < $this->getTracks (); $this->track++) {
 			
-		       /* TIME */
-		       $this->TimeTrack[$this->track] = $this->CurrentTime->format('Y-m-d\TH:i:s\Z');
-		       /* Fix Format of intervaltime */
-		       $this->IntervalTime =  round ( str_replace(",", ".",  $act->TrackPoints[$this->track]->IntervalTime ) + $this->IntervalTimeDiff );
-		       $this->IntervalTimeDiff = str_replace(",", ".", $act->TrackPoints[$this->track]->IntervalTime ) -  $this->IntervalTime + $this->IntervalTimeDiff;
-		       $this->CurrentTime->add(new DateInterval('PT' . $this->IntervalTime . 'S'));
+			/* TIME */
+		       $this->setTimeTrack( $this->CurrentTime->format('Y-m-d\TH:i:s\Z'), $this->track );
+		       
+		       $this->setIntervalTime( 
+				$this->getIntervalTimeDiff($this->track),
+			       	$this->track, 
+				str_replace(",","." , $act->TrackPoints[$this->track]->IntervalTime)
+			);
+
+		       $this->setIntervalTimeDiff( 
+			       	$this->getIntervalTimeDiff($this->track),
+				$this->track,
+				str_replace (",","." , $act->TrackPoints[$this->track]->IntervalTime)				
+			);
+
+		       $this->CurrentTime->add(new DateInterval('PT' . $this->getIntervalTime($this->track) . 'S'));
 
 		       /* Latitude */
 		       $this->LatitudeDegrees[$this->track] = ( str_replace(",", "." , $act->TrackPoints[$this->track]->Latitude ) );
@@ -234,10 +291,12 @@ class act2tcx {
 	}
 
 	function setLatitude( $act, $track , $value) {
+
 		$this->LatitudeDegrees[$track] = $value;
 	}
 	
 	function setLongitude( $act, $track , $value){
+
 		$this->LongitudeDegrees[$track] = $value;
 	}
 
@@ -257,6 +316,17 @@ class act2tcx {
 		$this->CadenceTrack[$track] = $value;
 	}
 
+	function getIntervalTime ( $track ){
+
+		return $this->IntervalTime[$track];
+	
+	}
+
+	function getIntervalTimeDiff ( $track ) {
+
+		return $this->IntervalTimeDiff[$track];
+	}
+
 
 	function getDeviceName ( ) {
 
@@ -272,18 +342,22 @@ class act2tcx {
 
 
 	function getHeartRate ($track){
+
 		return $this->HeartRateBpm[$track];
 	}
 
 	function getAltitude($track){
+
 		return $this->AltitudeMeters[$track];
 	}
 	
 	function getLongitude($track){
+
 		return $this->LongitudeDegrees[$track];
 	}
 	
 	function getDistance($track){
+
 		return $this->Distance[$track];
 	}
 
@@ -326,6 +400,7 @@ class act2tcx {
 
 		return $this->Calories;
 	}
+
 	function getDistanceMeters (  ) {
 
 		return $this->Distancemeters;
@@ -341,20 +416,25 @@ class act2tcx {
 
 	function getStarttime()		{
 
-		return $this->dateTime;
+		return $this->dateTime->format('Y-m-d\TH:i:s\Z');
 	}	
 
 
 	
 	function getId ()		{
 
-		return $this->Id;
+		return $this->Id->format('Y-m-d\TH:i:s\Z');
 	}
 
 	function getActivitySport()	{
 
 		return $this->Sport_t;
 	
+	}
+
+	function getUTC () {
+
+		return $this->utc_offset; 
 	}
 
 
