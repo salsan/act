@@ -134,7 +134,7 @@ class act2tcx {
 		if ( $this->getUTC () < 0 )
 		{
 			$this->tmpUTC = $this->getUTC() * -1 ;
-			$this->Id->sub(new DateInterval('PT' . $this->tmpUTC . 'S'));	
+			$this->Id->add(new DateInterval('PT' . $this->tmpUTC . 'S'));	
 		}
 		else $this->Id->sub(new DateInterval('PT' . $this->getUTC() . 'S'));
 
@@ -151,7 +151,7 @@ class act2tcx {
 		if ( $this->getUTC () < 0 )
 		{
 			$this->tmpUTC = $this->getUTC() * -1 ;
-			$this->dateTime->sub(new DateInterval('PT' . $this->tmpUTC . 'S'));	
+			$this->dateTime->add(new DateInterval('PT' . $this->tmpUTC . 'S'));	
 		}
 		else $this->dateTime->sub(new DateInterval('PT' . $this->getUTC() . 'S'));
 
